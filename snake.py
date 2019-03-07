@@ -22,7 +22,6 @@ class App():
             self.createdBy.destroy()
 
         self.canvasScore = tk.IntVar(self.root)
-        # self.canvasScore.set(self.score)
         self.scoreLabelCanvas = tk.Label(
             self.root, pady=4, font="Times 16 italic bold", bg="black", fg="white", textvariable=self.canvasScore)
         self.scoreLabelCanvas.pack()
@@ -41,10 +40,6 @@ class App():
                            width=self.width, bg='black')
         self.c.pack(fill=tk.BOTH, expand=True)
 
-        # widget = self.c.create_text(0, 0, fill="white", anchor="nw", font="Times 10 italic bold",
-        #                             text="Click the bubbles that are multiples of two.")
-
-        # self.c.bind('<Configure>', self.create_grid)
         self.c.bind('<Right>', self.rightKey)
         self.c.bind('<Up>', self.upKey)
         self.c.bind('<Left>', self.leftKey)
@@ -105,18 +100,15 @@ class App():
         exit()
 
     def stopGame(self, _event=None):
-        # self.speed = 1000*60*60
         self.c.destroy()
         self.create_dialogue_box()
-        # self.create_canvas()
-        # App()
 
     def isSnakeCollide(self):
         self.newL = []
         self.newL = self.Points.copy()
         old_start_point = self.Points[self.StartPos]
         self.newL.remove(self.Points[self.StartPos])
-        # print(self.newL)
+
         if old_start_point in self.newL:
             return True
         else:
@@ -151,43 +143,27 @@ class App():
         else:
             self.mouse = [x, y]
 
+    def removeLast(self, leftright, updown):
+        if self.Points[self.StartPos] == self.mouse:
+            self.updatePoints(
+                [self.mouse[0]+leftright, self.mouse[1]+updown])
+            self.generateMouse()
+        else:
+            self.Points[self.EndPos] = [self.Points[self.StartPos]
+                                        [0]+leftright, self.Points[self.StartPos][1]+updown]
+
     def changeLastPoint(self):
-        # print(self.Points)
         if self.Direction == 'RIGHT':
-            if self.Points[self.StartPos] == self.mouse:
-                self.updatePoints([self.mouse[0]+10, self.mouse[1]])
-                self.generateMouse()
-                # print(len(self.Points))
-            else:
-                self.Points[self.EndPos] = [self.Points[self.StartPos]
-                                            [0]+10, self.Points[self.StartPos][1]]
+            self.removeLast(10, 0)
 
         elif self.Direction == 'DOWN':
-            if self.Points[self.StartPos] == self.mouse:
-                self.updatePoints([self.mouse[0], self.mouse[1]+10])
-                self.generateMouse()
-                # print(len(self.Points))
-            else:
-                self.Points[self.EndPos] = [self.Points[self.StartPos]
-                                            [0], self.Points[self.StartPos][1]+10]
+            self.removeLast(0, 10)
 
         elif self.Direction == 'LEFT':
-            if self.Points[self.StartPos] == self.mouse:
-                self.updatePoints([self.mouse[0]-10, self.mouse[1]])
-                self.generateMouse()
-                # print(len(self.Points))
-            else:
-                self.Points[self.EndPos] = [self.Points[self.StartPos]
-                                            [0]-10, self.Points[self.StartPos][1]]
+            self.removeLast(-10, 0)
 
         elif self.Direction == 'UP':
-            if self.Points[self.StartPos] == self.mouse:
-                self.updatePoints([self.mouse[0], self.mouse[1]-10])
-                self.generateMouse()
-                # print(len(self.Points))
-            else:
-                self.Points[self.EndPos] = [self.Points[self.StartPos]
-                                            [0], self.Points[self.StartPos][1]-10]
+            self.removeLast(0, -10)
 
     def drawSnake(self):
 
@@ -196,8 +172,6 @@ class App():
         for i in self.Points:
             if self.Points.index(i) == self.StartPos:
                 self.makeSolidBox(self.c, i[0], i[1], 'white')
-            # elif self.Points.index(i) == self.EndPos:
-            #     self.makeSolidBox(self.c, i[0], i[1], 'green')
             else:
                 self.makeSolidBox(self.c, i[0], i[1], 'red')
 
@@ -215,10 +189,6 @@ class App():
             self.root.after(self.speed, self.runSnake)
         else:
             self.stopGame()
-    # def create_grid(self, event=None):
-    #     self.w = self.c.winfo_width()  # Get current width of canvas
-    #     self.h = self.c.winfo_height()  # Get current height of canvas
-    #     self.c.delete('grid_line')  # Will only remove the grid_line
 
 
 app = App()
