@@ -7,11 +7,25 @@ class App():
     def __init__(self):
         self.root = tk.Tk()
         self.root.after(1, lambda: self.root.focus_force())
+        self.root.title('Snake')
+        self.root.configure(background="black")
         self.root.resizable(0, 0)
         self.height, self.width = 500, 500
-        self.c = tk.Canvas(self.root, height=500, width=500, bg='black')
-        self.c.pack(fill=tk.BOTH, expand=True)
-        self.startX, self.startY = 200, 200
+        self.endLable = 0
+        self.create_canvas()
+        self.root.mainloop()
+
+    def create_canvas(self):
+        if self.endLable:
+            self.scoreLabel.destroy()
+            self.endLable.destroy()
+            self.createdBy.destroy()
+
+        self.canvasScore = tk.IntVar(self.root)
+        # self.canvasScore.set(self.score)
+        self.scoreLabelCanvas = tk.Label(
+            self.root, pady=4, font="Times 16 italic bold", bg="black", fg="white", textvariable=self.canvasScore)
+        self.scoreLabelCanvas.pack()
 
         self.Points = [[220, 200], [190, 200], [200, 200], [210, 200]]
         self.First = self.Points[1]
@@ -19,7 +33,13 @@ class App():
         self.StartPos = 0
         self.EndPos = 1
         self.speed = 50
-        self.mouse = [330, 200]
+        self.mouse = [0, 0]
+        self.score = 0
+        self.generateMouse()
+
+        self.c = tk.Canvas(self.root, height=self.height,
+                           width=self.width, bg='black')
+        self.c.pack(fill=tk.BOTH, expand=True)
 
         # widget = self.c.create_text(0, 0, fill="white", anchor="nw", font="Times 10 italic bold",
         #                             text="Click the bubbles that are multiples of two.")
@@ -29,16 +49,31 @@ class App():
         self.c.bind('<Up>', self.upKey)
         self.c.bind('<Left>', self.leftKey)
         self.c.bind('<Down>', self.downKey)
-        self.c.bind('<Escape>', self.exitGame)
-        self.c.bind('<space>', self.resume)
+        self.root.bind('<Escape>', self.exitGame)
+        self.root.bind('<space>', self.resume)
         self.c.bind('w', self.speedDown)
         self.c.bind('e', self.speedUp)
         self.c.focus_set()
 
         self.runSnake()
-        self.root.mainloop()
 
-    # def create_canvas(self):
+    def create_dialogue_box(self):
+        self.scoreLabelCanvas.destroy()
+        score = tk.IntVar(self.root)
+        score.set(self.score)
+        self.scoreLabel = tk.Label(
+            self.root, padx=20, pady=20, font="Times 20 italic bold",  bg="black", fg="white", textvariable=score)
+        self.endLable = tk.Label(
+            self.root, padx=50, pady=30, font="Times 16  bold",  bg="black", fg="white", text="Try one more time Kido.\n\n Press <Space> for New Game.\nPress <Esc> to exit.")
+        self.createdBy = tk.Label(
+            self.root, padx=20, pady=5, font="Times 12 italic",  bg="black", fg="white", text='Created by Rajan')
+
+        self.scoreLabel.pack()
+        self.endLable.pack()
+        self.createdBy.pack()
+
+    def updateScore(self):
+        self.score += 1
 
     def speedUp(self, _event=None):
         self.speed -= 10
@@ -47,7 +82,7 @@ class App():
         self.speed += 10
 
     def resume(self, _event=None):
-        self.speed = 50
+        self.create_canvas()
 
     def rightKey(self, _event=None):
         if self.Direction != 'LEFT':
@@ -69,10 +104,12 @@ class App():
         self.root.destroy()
         exit()
 
-    def newGame(self, _event=None):
+    def stopGame(self, _event=None):
         # self.speed = 1000*60*60
-        self.root.destroy()
-        App()
+        self.c.destroy()
+        self.create_dialogue_box()
+        # self.create_canvas()
+        # App()
 
     def isSnakeCollide(self):
         self.newL = []
@@ -104,6 +141,8 @@ class App():
         newList = self.Points[:self.StartPos + 1] + \
             [newPoint] + self.Points[self.StartPos+1:]
         self.Points = newList
+        self.updateScore()
+        self.canvasScore.set(self.score)
 
     def generateMouse(self):
         x, y = random.randrange(0, 490, 10), random.randrange(0, 490, 10)
@@ -165,17 +204,17 @@ class App():
         self.changeLastPoint()
         self.roll()
         if self.isSnakeCollide():
-            self.newGame()
+            self.stopGame()
 
     def runSnake(self):
         # print(self.StartPos)
-        if (self.Points[self.StartPos][0] < 500 and self.Points[self.StartPos][1] < 500) and (self.Points[self.StartPos][0] >= 0 and self.Points[self.StartPos][1] >= 0):
+        if (self.Points[self.StartPos][0] < self.height and self.Points[self.StartPos][1] < self.width) and (self.Points[self.StartPos][0] >= 0 and self.Points[self.StartPos][1] >= 0):
 
             self.drawSnake()
             # print(self.Points)
             self.root.after(self.speed, self.runSnake)
         else:
-            self.newGame()
+            self.stopGame()
     # def create_grid(self, event=None):
     #     self.w = self.c.winfo_width()  # Get current width of canvas
     #     self.h = self.c.winfo_height()  # Get current height of canvas
