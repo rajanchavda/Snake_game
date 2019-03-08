@@ -1,6 +1,8 @@
 import tkinter as tk
 import queue
 import random
+from playsound import playsound
+import threading
 
 
 class App():
@@ -66,6 +68,9 @@ class App():
         self.scoreLabel.pack()
         self.endLable.pack()
         self.createdBy.pack()
+
+    def play_sound(self):
+        playsound('./Sounds/AWM_Shot.mp3')
 
     def updateScore(self):
         self.score += 1
@@ -147,6 +152,8 @@ class App():
         if self.Points[self.StartPos] == self.mouse:
             self.updatePoints(
                 [self.mouse[0]+leftright, self.mouse[1]+updown])
+            thread1 = threading.Thread(target=self.play_sound)
+            thread1.start()
             self.generateMouse()
         else:
             self.Points[self.EndPos] = [self.Points[self.StartPos]
